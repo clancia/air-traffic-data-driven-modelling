@@ -7,9 +7,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pytz
 # from datetime import time
-from constants import COLORS, TZONES, CODES
-
-# import pdb
+from constants import COLORS, TZONES, CODES, BEGDT, ENDDT
 
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
@@ -44,8 +42,8 @@ def ifelse_formatter(x):
 
 sns.set(style="whitegrid", context='paper')
 
-BEGDT = pd.Timestamp(atddm.constants.BEGDT)
-ENDDT = pd.Timestamp(atddm.constants.ENDDT)
+BEGDT = pd.Timestamp(BEGDT)
+ENDDT = pd.Timestamp(ENDDT)
 INTERVAL = 10
 NREPS = 300
 dd = atddm.load(subset=CODES)

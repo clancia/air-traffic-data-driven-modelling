@@ -5,22 +5,28 @@ import pandas as pd
 # import numpy as np
 # from datetime import time
 from math import sqrt
-from constants import AIRPORTS, COLORS, TZONES, CODES
+from constants import AIRPORTS, COLORS, TZONES, CODES, BEGDT, ENDDT
 import seaborn as sns
 import matplotlib.pyplot as plt
 from statsmodels.tsa.stattools import adfuller
 from scipy import stats
-# import pdb
-
-sns.set(style="whitegrid", context='paper')
 
 
 def rgbfy(code):
     return list(map(lambda x: x/255, COLORS[code]))
 
 
-BEGDT = pd.Timestamp(atddm.constants.BEGDT)
-ENDDT = pd.Timestamp(atddm.constants.ENDDT)
+TRGT = 'talk'
+
+if TRGT == 'talk':
+    sns.set(context='talk')
+    PRFIX = './publications/talk_plots/'
+else:
+    sns.set(style="whitegrid", context='paper')
+    PRFIX = './plots/'
+
+BEGDT = pd.Timestamp(BEGDT)
+ENDDT = pd.Timestamp(ENDDT)
 INTERVAL = 10
 ALPHA = 0.01
 
@@ -43,7 +49,7 @@ ci = zval/sqrt(len(indx))
 lag1acf = pd.Series(index=CODES)
 adftest = pd.DataFrame(index=CODES, columns=['adf', 'adf*', 'p-val'])
 
-f, axes = plt.subplots(nairp//2, 2, sharey=False)
+f, axes = plt.subplots(nairp//2, 2, sharex=True, sharey=True)
 
 for ax, code in zip(axes.flatten(), CODES):
     ts = m3_bin[code].fillna(0)
@@ -66,16 +72,22 @@ for ax, code in zip(axes.flatten(), CODES):
                                               markerfmt=' ',
                                               basefmt=' ')
     plt.setp(stemlines, 'color', rgbfy(code))
-    ax.set_xlim(-2.5, lagmax+2.5)
-    ax.set_ylim(-0.2, 0.2)
-    ndays += 1
-    ax.set_xticks([i*24*60//freq for i in range(ndays)])
-    ax.set_xticklabels(['{:d} days'.format(i) for i in range(ndays)])
-    ax.set_title('{:s} (ICAO: {:s})'.format(AIRPORTS[code], code))
-    ax.set_ylabel('ACF({:s})'.format(code))
+    ax.set_ylabel('ACF')
+    if TRGT == 'talk':
+        ax.set_title('{:s}'.format(code))
+    else:
+        ax.set_title('{:s} (ICAO: {:s})'.format(AIRPORTS[code], code))
+ax.set_xlim(-2.5, lagmax+2.5)
+ax.set_ylim(-0.2, 0.2)
+ndays += 1
+ax.set_xticks([i*24*60//freq for i in range(ndays)])
+ax.set_xticklabels(['{:d} days'.format(i) for i in range(ndays)])
 
-f.set_size_inches(2*nairp, 1.5*nairp)
-f.savefig('./plots/Autocorr.png', dpi=300, bbox_inches='tight')
+if TRGT == 'talk':
+    f.set_size_inches(24, 12)
+else:
+    f.set_size_inches(2*nairp, 1.5*nairp)
+f.savefig(PRFIX + 'Autocorr.png', dpi=300, bbox_inches='tight')
 
 print('lag-1 autocorrelations')
 print(lag1acf)

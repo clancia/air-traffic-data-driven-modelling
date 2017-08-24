@@ -2,7 +2,7 @@
 
 import atddm
 import pandas as pd
-from constants import AIRPORTS, CODES
+from constants import AIRPORTS, CODES, BEGDT, ENDDT
 
 dd = atddm.load(subset=CODES)
 
@@ -13,8 +13,8 @@ df = pd.DataFrame(index=indx, data={
                              CODES)), 'sample size': [0]*len(CODES)
     })
 
-BEGDT = pd.Timestamp(atddm.constants.BEGDT)
-ENDDT = pd.Timestamp(atddm.constants.ENDDT)
+BEGDT = pd.Timestamp(BEGDT)
+ENDDT = pd.Timestamp(ENDDT)
 
 for code in CODES:
     name = AIRPORTS[code]

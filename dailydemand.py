@@ -4,20 +4,26 @@ import atddm
 import pandas as pd
 # import numpy as np
 from datetime import time
-from constants import AIRPORTS, COLORS, TZONES, CODES
+from constants import AIRPORTS, COLORS, TZONES, CODES, BEGDT, ENDDT
 import seaborn as sns
 import matplotlib.pyplot as plt
-# import pdb
 
-sns.set(style="whitegrid", context='paper')
+TRGT = 'talk'
+
+if TRGT == 'talk':
+    sns.set(context='talk')
+    PRFIX = './publications/talk_plots/'
+else:
+    sns.set(style="whitegrid", context='paper')
+    PRFIX = './plots/'
 
 
 def rgbfy(code):
     return list(map(lambda x: x/255, COLORS[code]))
 
 
-BEGDT = pd.Timestamp(atddm.constants.BEGDT)
-ENDDT = pd.Timestamp(atddm.constants.ENDDT)
+BEGDT = pd.Timestamp(BEGDT)
+ENDDT = pd.Timestamp(ENDDT)
 # ENDDT = BEGDT + pd.Timedelta(21, 'D')
 INTERVAL = 10
 
@@ -34,7 +40,10 @@ for code in CODES:
                                      interval=INTERVAL,
                                      tz=TZONES[code])[indx].fillna(0)
 
-f, axes = plt.subplots(nairp//2, 2, sharey=True)
+if TRGT == 'talk':
+    f, axes = plt.subplots(2, nairp//2, sharey=False)
+else:
+    f, axes = plt.subplots(nairp//2, 2, sharey=False)
 
 for ax, code in zip(axes.flatten(), CODES):
     ts = m3_bin[code].fillna(0)
@@ -55,6 +64,13 @@ for ax, code in zip(axes.flatten(), CODES):
     ax.set_xticks(xticks)
     ax.set_xticklabels([times[i] for i in xticks])
     ax.set_ylabel('1st order differenced daily demands')
-    ax.set_title('{:s} (ICAO: {:s})'.format(AIRPORTS[code], code))
-f.set_size_inches(2*nairp, 1.5*nairp)
-f.savefig('./plots/DailyDemand.png', dpi=300, bbox_inches='tight')
+    if TRGT == 'talk':
+        ax.set_title('{:s}'.format(code))
+    else:
+        ax.set_title('{:s} (ICAO: {:s})'.format(AIRPORTS[code], code))
+
+if TRGT == 'talk':
+    f.set_size_inches(24, 10)
+else:
+    f.set_size_inches(2*nairp, 1.5*nairp)
+f.savefig(PRFIX+'DailyDemand.png', dpi=300, bbox_inches='tight')

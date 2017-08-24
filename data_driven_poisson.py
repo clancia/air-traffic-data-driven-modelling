@@ -31,8 +31,7 @@ import atddm
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from constants import AIRPORTS, COLORS, TIMEZONES, TZONES, CODES
-# import datetime
+from constants import AIRPORTS, COLORS, TIMEZONES, TZONES, CODES, BEGDT, ENDDT
 
 from sklearn.cluster import DBSCAN
 # from sklearn import metrics
@@ -45,13 +44,25 @@ from sklearn.preprocessing import StandardScaler
 from rpy2.robjects import pandas2ri
 pandas2ri.activate()
 
-sns.set(style="whitegrid", context='paper')
+TRGT = 'talk'
+
+if TRGT == 'talk':
+    sns.set(context='talk')
+    PRFIX = './publications/talk_plots/'
+else:
+    sns.set(style="whitegrid", context='paper')
+    PRFIX = './plots/'
 
 ###################################
 nairp = len(CODES)
-f, axes = plt.subplots(nairp//2, 2, sharex=True, sharey=True)
-II = np.repeat(list(range(nairp//2)), 2)
-JJ = [0, 1]*(nairp//2)
+if TRGT == 'talk':
+    f, axes = plt.subplots(2, nairp//2, sharex=True, sharey=True)
+    II = [0, 1]*(nairp//2)
+    JJ = np.repeat(list(range(nairp//2)), 2)
+else:
+    f, axes = plt.subplots(nairp//2, 2, sharex=True, sharey=True)
+    II = np.repeat(list(range(nairp//2)), 2)
+    JJ = [0, 1]*(nairp//2)
 
 HPARMS = pd.DataFrame.from_dict({
     'EDDF': [0.2, 15],
@@ -66,8 +77,8 @@ HPARMS = pd.DataFrame.from_dict({
 HPARMS.columns = ['eps', 'msample']
 
 
-BEGDT = pd.Timestamp(atddm.constants.BEGDT)
-ENDDT = pd.Timestamp(atddm.constants.ENDDT)
+BEGDT = pd.Timestamp(BEGDT)
+ENDDT = pd.Timestamp(ENDDT)
 INTERVAL = 10
 NPERIODS = 24*60/INTERVAL
 dd = atddm.load(subset=CODES)
@@ -163,13 +174,18 @@ for code, i, j in zip(CODES, II, JJ):
 
         ax.scatter(xy[:, 0], xy[:, 1], marker='o', c=col, s=10, alpha=alpha)
 
-        ax.set_title('{:s} (ICAO: {:s})'.format(AIRPORTS[code], code))
+        if TRGT == 'talk':
+            ax.set_title('{:s}'.format(code))
+        else:
+            ax.set_title('{:s} (ICAO: {:s})'.format(AIRPORTS[code], code))
 
 ax.set_xticks([int(i*NPERIODS/8) for i in range(9)])
 ax.set_xticklabels(['{:02d}:{:02d}'.format(t*INTERVAL//60, t*INTERVAL % 60)
                     for t in ax.get_xticks()])
 ax.set_ylim(bottom=0)
 
+###############################################################################
+# MODIFICHE SOLO PER paper
 # f, ax = sns.plt.subplots()
 # ax.scatter(chng[:-1], pars[1:-1])
 # ax.set_xticks([int(i* NPERIODS/8) for i in range(9)])
@@ -180,8 +196,17 @@ ax.set_ylim(bottom=0)
 # sns.plt.show()
 
 # f.suptitle('Data-driven Poisson process :: PELT with AIC penalty')
-f.set_size_inches(10, 7.5)
-f.savefig('./plots/DDPoisson.png', dpi=250, bbox_inches='tight')
+###############################################################################
+
+for ax in axes[-1]:
+    for tick in ax.get_xticklabels():
+        tick.set_rotation(30)
+
+if TRGT == 'talk':
+    f.set_size_inches(24, 8)
+else:
+    f.set_size_inches(10, 7.5)
+f.savefig(PRFIX + 'DDPoisson.png', dpi=250, bbox_inches='tight')
 
 detected_lambdas = detected_lambdas.set_index(['icao', 'time'])
 detected_lambdas = detected_lambdas.sort_index()

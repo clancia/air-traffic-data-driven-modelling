@@ -8,13 +8,9 @@ from datetime import time
 # from math import ceil
 import seaborn as sns
 # import matplotlib.pyplot as plt
-from constants import AIRPORTS, COLORS, TZONES, CODES
+from constants import AIRPORTS, COLORS, TZONES, CODES, BEGDT, ENDDT
 from math import sqrt
 from scipy import stats
-
-# import pdb
-
-sns.set(style='whitegrid', context='paper')
 
 
 def timetofloat(t, freq):
@@ -29,8 +25,38 @@ def z2rho(z):
     return (np.exp(2*z)-1)/(np.exp(2*z)+1)
 
 
-BEGDT = pd.Timestamp(atddm.constants.BEGDT)
-ENDDT = pd.Timestamp(atddm.constants.ENDDT)
+nairp = len(CODES)
+TRGT = 'talk'
+
+if TRGT == 'talk':
+    sns.set(context='talk')
+    PRFX = './publications/talk_plots/'
+    NX = 2
+    NY = nairp//2
+    SX = 24
+    SY = 10
+    MS = 30
+    LW = 3
+
+    def axtitle(code):
+        return '{:s}'.format(code)
+
+else:
+    sns.set(style="whitegrid", context='paper')
+    PRFX = './plots/'
+    NX = nairp//2
+    NY = 2
+    SX = 10
+    SY = 7.5
+    MS = 5
+    LW = 1
+
+    def axtitle(code):
+        return '{:s} (ICAO: {:s})'.format(AIRPORTS[code], code)
+
+
+BEGDT = pd.Timestamp(BEGDT)
+ENDDT = pd.Timestamp(ENDDT)
 INTERVAL = 10
 # NREPS = 300
 ALPHA = 0.05
@@ -39,9 +65,7 @@ dd = atddm.load(subset=CODES)
 m3_bin = {}
 m1_bin = {}
 psra_bin = {}
-nairp = len(CODES)
 
-PRFX = './plots/'
 
 npr.seed()
 
@@ -143,23 +167,20 @@ xticks = [(2+3*i)*60//freq for i in range(8)]
 
 # nr = ceil(len(CODES)/2)
 # f, axes = plt.subplots(nr, 2, sharex=True, sharey=True, figsize=(14, 2+4*nr))
-f, axes = sns.plt.subplots(nairp//2, 2,
+f, axes = sns.plt.subplots(NX, NY,
                            sharex=True,
                            sharey=True,
-                           figsize=(10, 7.5))
+                           figsize=(SX, SY))
 
 for ax, code in zip(axes.flatten(), CODES):
     kolor = list(map(lambda x: x/255, COLORS[code]))
-    ax.plot(range(24*60//freq),
-            daily[code]['mu'],
-            color=kolor,
-            linestyle='None',
-            marker='o',
-            markersize=1,
-            label='data',
-            markerfacecolor=kolor,
-            markeredgewidth=1,
-            markeredgecolor=kolor)
+    ax.scatter(range(24*60//freq),
+               daily[code]['mu'],
+               c=kolor,
+               marker='v',
+               s=MS,
+               alpha=0.9,
+               label='Data')
     xval = [0] + [timetofloat(tpl[1], freq) for tpl in airp_parm[code]] +\
         [24*60//freq]
     yval = [tpl[0]*freq for tpl in airp_parm[code]]
@@ -176,29 +197,31 @@ for ax, code in zip(axes.flatten(), CODES):
     #         linestyle='-',
     #         linewidth=1,
     #         label='PSRA')
-    ax.plot(range(24*60//freq),
-            daily_psra[code]['mu'],
-            color=kolor,
-            linestyle='None',
-            marker='d',
-            markersize=2,
-            label='PSRA',
-            markerfacecolor='None',
-            markeredgewidth=1,
-            markeredgecolor=kolor)
+    ax.scatter(range(24*60//freq),
+               daily_psra[code]['mu'],
+               c=kolor,
+               marker='^',
+               s=MS,
+               alpha=0.9,
+               label='PSRA')
     ax.step(xval,
             yval,
             color=kolor,
             linestyle='-',
-            linewidth=1,
+            linewidth=LW,
             label='Poisson')
     legend = ax.legend(loc='upper left')
-    ax.set_title('{:s} (ICAO: {:s})'.format(AIRPORTS[code], code))
-    ax.set_xlim(0, 24*60//freq)
-    ax.set_xticks(xticks)
-    ax.set_xticklabels([times[i] for i in xticks])
+    ax.set_title(axtitle(code))
+ax.set_xlim(0, 24*60//freq)
+ax.set_xticks(xticks)
+ax.set_xticklabels([times[i] for i in xticks])
 # f.suptitle('Average daily arrivals per intervals ' +\
 #   'of {:d} mins'.format(INTERVAL))
+for ax in axes[:, 0]:
+    ax.set_ylabel('Avg # arrivals by {:d} mins'.format(INTERVAL))
+for ax in axes[-1]:
+    for tick in ax.get_xticklabels():
+        tick.set_rotation(30)
 f.savefig(PRFX + 'mean_simul_arrivals.png', dpi=300, bbox_inches='tight')
 
 # f, axes = plt.subplots(1,3, sharex=True, sharey=True, figsize=(16,9))
@@ -347,10 +370,10 @@ for code, ts in psra_bin.items():
 # f.savefig(PRFX + 'correlations_m1-psra.png', dpi=300)
 
 # f, axes = plt.subplots(nr, 2, sharex=True, sharey=True, figsize=(14, 2+4*nr))
-f, axes = sns.plt.subplots(nairp//2, 2,
+f, axes = sns.plt.subplots(NX, NY,
                            sharex=True,
                            sharey=True,
-                           figsize=(10, 7.5))
+                           figsize=(SX, SY))
 for code, ax in zip(CODES, axes.flatten()):
     k = list(map(lambda x: x/255, COLORS[code]))
     yerr = [correlations[code]-correlations[code+'lowerCI'],
@@ -369,22 +392,25 @@ for code, ax in zip(CODES, axes.flatten()):
                 color=k,
                 fmt='o',
                 elinewidth=0.5,
-                markersize=1.5)
+                markersize=3)
     ax.axhline(color=k, lw=0.5)
-    ax.set_xlim(-1, 24*60//freq+1)
-    ax.set_xticks(xticks)
-    ax.set_xticklabels([times[i] for i in xticks])
     ax.set_title('{:s}: correlations from data'.format(code))
+ax.set_xlim(-1, 24*60//freq+1)
+ax.set_xticks(xticks)
+ax.set_xticklabels([times[i] for i in xticks])
 ax.set_ylim(-1, 1)
 # f.suptitle('Correlation of the arrivals in two consecutive intervals ' +\
 #   'of {:d} mins'.format(INTERVAL))
+for ax in axes[-1]:
+    for tick in ax.get_xticklabels():
+        tick.set_rotation(30)
 f.savefig(PRFX + 'correlations_true.png', dpi=300, bbox_inches='tight')
 
 # f, axes = plt.subplots(nr, 2, sharex=True, sharey=True, figsize=(14, 2+4*nr))
-f, axes = sns.plt.subplots(nairp//2, 2,
+f, axes = sns.plt.subplots(NX, NY,
                            sharex=True,
                            sharey=True,
-                           figsize=(10, 7.5))
+                           figsize=(SX, SY))
 for code, ax in zip(CODES, axes.flatten()):
     k = list(map(lambda x: x/255, COLORS[code]))
     yerr = [correlations_m1[code]-correlations_m1[code+'lowerCI'],
@@ -404,22 +430,25 @@ for code, ax in zip(CODES, axes.flatten()):
                 color=k,
                 fmt='o',
                 elinewidth=0.5,
-                markersize=1.5)
+                markersize=3)
     ax.axhline(color=k, lw=0.5)
-    ax.set_xlim(-1, 24*60//freq+1)
-    ax.set_xticks(xticks)
-    ax.set_xticklabels([times[i] for i in xticks])
     ax.set_title('{:s}: correlations from M1-data'.format(code))
+ax.set_xlim(-1, 24*60//freq+1)
+ax.set_xticks(xticks)
+ax.set_xticklabels([times[i] for i in xticks])
 ax.set_ylim(-1, 1)
 # f.suptitle('Correlation of the arrivals in two consecutive intervals ' +\
 #   'of {:d} mins'.format(INTERVAL))
+for ax in axes[-1]:
+    for tick in ax.get_xticklabels():
+        tick.set_rotation(30)
 f.savefig(PRFX + 'correlations_m1.png', dpi=300, bbox_inches='tight')
 
 # f, axes = plt.subplots(nr, 2, sharex=True, sharey=True, figsize=(14, 2+4*nr))
-f, axes = sns.plt.subplots(nairp//2, 2,
+f, axes = sns.plt.subplots(NX, NY,
                            sharex=True,
                            sharey=True,
-                           figsize=(10, 7.5))
+                           figsize=(SX, SY))
 for code, ax in zip(CODES, axes.flatten()):
     k = list(map(lambda x: x/255, COLORS[code]))
     yerr = [correlations_psra[code]-correlations_psra[code+'lowerCI'],
@@ -439,13 +468,16 @@ for code, ax in zip(CODES, axes.flatten()):
                 color=k,
                 fmt='o',
                 elinewidth=0.5,
-                markersize=1.5)
+                markersize=3)
     ax.axhline(color=k, lw=0.5)
-    ax.set_xlim(-1, 24*60//freq+1)
-    ax.set_xticks(xticks)
-    ax.set_xticklabels([times[i] for i in xticks])
     ax.set_title('{:s}: correlations from PSRA'.format(code))
+ax.set_xlim(-1, 24*60//freq+1)
+ax.set_xticks(xticks)
+ax.set_xticklabels([times[i] for i in xticks])
 ax.set_ylim(-1, 1)
 # f.suptitle('Correlation of the arrivals in two consecutive intervals ' +\
 #   'of {:d} mins'.format(INTERVAL))
+for ax in axes[-1]:
+    for tick in ax.get_xticklabels():
+        tick.set_rotation(30)
 f.savefig(PRFX + 'correlations_psra.png', dpi=300, bbox_inches='tight')
