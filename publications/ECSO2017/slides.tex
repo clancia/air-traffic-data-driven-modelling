@@ -66,7 +66,7 @@ at some major European airports}
 \institute[Leiden Univ.]{\inst{1} Mathematical Institute Leiden University,\\
                          \inst{2} Lancaster University Management School}
 
-\date[ECSO 2017]{ECSO 2017, August 22, 2017}
+\date[ECSO 2017]{ECSO 2017, September 22, 2017}
 % - Either use conference name or its abbreviation.
 % - Not really informative to the audience, more for people (including
 %   yourself) who are reading the slides online
@@ -126,11 +126,11 @@ at some major European airports}
     \end{alertblock}
 
     \begin{alertblock}{Conclusions}
-        PSRA should be preferred whenever mathematical tractability is not an issue
+        PSRA outperforms Poisson arrivals in estimating the daily demand
     \end{alertblock}
 \end{frame}
 
-\begin{frame}[t]\frametitle{Modelling the length of inbound queue at Heathrow (\airp{egll})}
+\begin{frame}[t]\frametitle{Motovation: inbound queue at Heathrow}
     \begin{center}
         \includegraphics[width=.8\textwidth]{cills}
 
@@ -140,44 +140,35 @@ at some major European airports}
     \end{center}
 \end{frame}
 
-\begin{frame}[t]\frametitle{Pre-scheduled random arrivals}
-    \centering
-    \includegraphics[width=.65\textwidth]{psra}
+% \begin{frame}[t]\frametitle{Poisson and PSRA model}
+%     \centering
+%     \includegraphics[width=.9\textwidth]{pois_psra}
+%     \vfill
+%     \alert{$\cdot$/D/1 queue model:} single server, deterministic service time
+% \end{frame}
 
-    {\tiny From Caccavale et al. (2014) \emph{J Air Transp Manag}, 34, 116--122}
-
-    \vfill
-
-    \begin{alertblock}{Idea}
-        Fixed, deterministic schedule perturbed by IID random variables
-        \[ t_i = \frac{i}{\mu} + \xi_i \]
-        Optional thinning process (hollow dots)
-    \end{alertblock}
-\end{frame}
-
-\begin{frame}[t]\frametitle{Poisson and PSRA model}
-    \centering
-    \includegraphics[width=.9\textwidth]{pois_psra}
-    \vfill
-    \alert{$\cdot$/D/1 queue model:} single server, deterministic service time
-\end{frame}
-
-\begin{frame}[t]\frametitle{Modelling the length of inbound queue at Heathrow (\airp{egll})}
+\begin{frame}[t]\frametitle{Motivation: inbound queue at Heathrow}
     \begin{columns}
         \column{.6\textwidth}
         \begin{center}
             \includegraphics[width=.85\textwidth]{cills2}
 
-            {\tiny From Caccavaleet al. (2014) \emph{J Air Transp Manag}, 34, 116--122}
+            {\tiny From Caccavale et al. (2014) \emph{J Air Transp Manag}, 34, 116--122}
         \end{center}
         \column{.4\textwidth}
         \begin{itemize}
-            \item Indirect comparison with Poisson, i.e.\ through a queueing model
+            % \item Indirect comparison with Poisson, i.e.\ through a queueing model
+            \item Indirect comparison through a \alert{$\cdot$/D/1 queue model}
             \item Analysis overlooks action of TC on inbound stream
             \item \emph{This leads to overestimating PSRA parameter $\sigma$}
-            \item Deterministic schedule of PSRA is equally spaced in time (this is ok for \airp{egll}, though)
+            \item Deterministic schedule of PSRA is equally spaced in time (OK for Heathrow, though)
         \end{itemize}
     \end{columns}
+\end{frame}
+
+\begin{frame}[t]\frametitle{Airport selection and Arrival areas}
+    \centering
+    \includegraphics[width=.7\textwidth]{map}
 \end{frame}
 
 \begin{frame}[t]\frametitle{Dataset overview}
@@ -196,9 +187,24 @@ at some major European airports}
     \includegraphics[width=.9\textwidth]{AvgArrivals}
 \end{frame}
 
-\begin{frame}[t]\frametitle{Daily periodicity}
+\begin{frame}[t]\frametitle{Significant autocorrelations at lag 10 mins and 1-2 days}
     \centering
-    \includegraphics[width=.8\textwidth]{Autocorr}
+    \includegraphics[width=.7\textwidth]{Autocorr}
+
+    \hfill
+
+    We expect \alert{batch arrivals} \emph{(typically Weibull interarrivals)}
+    and a \alert{daily-periodic demand}
+\end{frame}
+
+\begin{frame}[t]\frametitle{Interarrival times are (nearly) exponential}
+    \centering
+    \includegraphics[width=.65\textwidth]{IA_qqplot0800-0930}
+
+    \hfill
+
+    \emph{Poisson process explains shape $\simeq 1.0$
+    but clashes with negative lag-1 autocorrelation}
 \end{frame}
 
 \begin{frame}[t]\frametitle{Data-driven Poisson process}
@@ -222,7 +228,7 @@ at some major European airports}
             \item PELT is an algorithm for multiple changepoint detection in a time series
             \item It can detect changes in mean, variance, or both
             \item Software available via R package \texttt{changepoint}
-            \item We work under the null of Poisson arrivals
+            \item We work under the null hypothesis of Poisson arrivals
         \end{itemize}
 
         \column{.5\textwidth}
@@ -231,6 +237,11 @@ at some major European airports}
 
         {\tiny Killick, Eckley (2014) \emph{J Stat Soft} 58(3)}
     \end{columns}
+\end{frame}
+
+\begin{frame}[t]\frametitle{Result of PELT}
+    \centering
+    \includegraphics[width=\textwidth]{DDPoisson_precluster}
 \end{frame}
 
 \begin{frame}[t]\frametitle{Clustering via DBSCAN}
@@ -257,6 +268,22 @@ at some major European airports}
     \includegraphics[width=\textwidth]{DDPoisson}
 \end{frame}
 
+\begin{frame}[t]\frametitle{Pre-scheduled random arrivals (PSRA)}
+    \centering
+    \includegraphics[width=.65\textwidth]{psra}
+
+    {\tiny From Caccavale et al. (2014) \emph{J Air Transp Manag}, 34, 116--122}
+
+    \vfill
+
+    \begin{alertblock}{Idea}
+        Fixed, deterministic schedule perturbed by IID random variables
+        \[ t_i = \frac{i}{\mu} + \xi_i \]
+        \emph{\alert{Note.} It weakly converges to Poisson process
+        when delays's standard deviation $\sigma_{\xi} \to \infty$}
+    \end{alertblock}
+\end{frame}
+
 \begin{frame}[t]\frametitle{Data-driven PSRA}
     \begin{enumerate}
         \item Let $t^{\mathrm{M3}}_i$ the \alert{\emph{actual} arrival} time at 40 NM
@@ -276,9 +303,12 @@ at some major European airports}
 \begin{frame}[t]\frametitle{Data-driven Poisson vs PSRA}
     \begin{itemize}
         \item PSRA outperform Poisson arrivals in reproducing the average daily demand
-        \item Average demand reproduced with Poisson model by \alert{forcing} intensity to vary over a finer time scale
+        \item Average demand reproduced with Poisson model by \alert{forcing}
+        intensity to vary over a finer time scale, e.g.\ every 10 minutes
         \begin{itemize}
-            \item \alert{CAVEAT} number of parameters requires increases in a sensible manner
+            \item \alert{\textsc{Caveat}} number of parameters required increases in a sensible manner (144)
+            \item \alert{\textsc{Caveat}} system mostly out of equilibrium
+            \item \alert{\textsc{Caveat}} mathematical tractability is greatly reduced
         \end{itemize}
         \item PSRA is non-parametric
         \item A semi-parametric model is possible by defining $\xi_i = \xi_i(Z)$

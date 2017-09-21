@@ -154,8 +154,8 @@ for code, i, j in zip(CODES, II, JJ):
 
         if k >= 0:
             centroid = XX[class_member_mask].mean(axis=0)
-            ax.axvline(centroid[0], color=col, lw=0.25, ls='--')
-            ax.axhline(centroid[1], color=col, lw=0.25, ls='--')
+            # ax.axvline(centroid[0], color=col, lw=0.25, ls='--')
+            # ax.axhline(centroid[1], color=col, lw=0.25, ls='--')
             detctime = '{h:02d}:{m:02d} UTC+{tz:02d}'.format(
                     h=int(centroid[0]*INTERVAL // 60),
                     m=int(centroid[0]*INTERVAL % 60),
