@@ -4,7 +4,7 @@ import pandas as pd
 pathtohere = os.path.abspath(__file__)
 HERE = os.path.dirname(pathtohere)
 
-PREFIX = HERE + '/DataByEndAirport/'
+PREFIX = HERE + '/../DataByEndAirport/'
 POSTFIX = '.csv'
 
 CODES = ['EDDF', 'EGKK', 'EGLL', 'EHAM', 'LEMD', 'LFPG', 'LGAV', 'LIRF']

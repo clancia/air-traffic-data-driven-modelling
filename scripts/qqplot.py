@@ -63,7 +63,7 @@ ENDTM_LOC = [pd.Timestamp('09:30:00'),
              pd.Timestamp('13:30:00'),
              pd.Timestamp('19:30:00')]
 
-PRFX = './plots/'
+PRFX = './../plots/'
 
 for code in CODES:
     tmp = dd[code]['M3_FL240'].sort_values()

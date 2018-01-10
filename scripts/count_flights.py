@@ -24,6 +24,6 @@ for code in CODES:
     # indx = pd.DatetimeIndex(tmp[1:])
     # df.loc[name, 'sample size'] = len(indx[indx.slice_indexer(BEGDT,ENDDT)])
 
-ofile = open('./tables/count_table.tex', 'w')
+ofile = open('./../tables/count_table.tex', 'w')
 ofile.write(df.to_latex(column_format='lcr', escape=False))
 ofile.close()

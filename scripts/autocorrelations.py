@@ -20,10 +20,10 @@ TRGT = 'talk'
 
 if TRGT == 'talk':
     sns.set(context='talk')
-    PRFIX = './publications/talk_plots/'
+    PRFIX = './../publications/talk_plots/'
 else:
     sns.set(style="whitegrid", context='paper')
-    PRFIX = './plots/'
+    PRFIX = './../plots/'
 
 BEGDT = pd.Timestamp(BEGDT)
 ENDDT = pd.Timestamp(ENDDT)

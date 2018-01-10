@@ -30,7 +30,7 @@ TRGT = 'talk'
 
 if TRGT == 'talk':
     sns.set(context='talk')
-    PRFX = './publications/talk_plots/'
+    PRFX = './../publications/talk_plots/'
     NX = 2
     NY = nairp//2
     SX = 24
@@ -43,7 +43,7 @@ if TRGT == 'talk':
 
 else:
     sns.set(style="whitegrid", context='paper')
-    PRFX = './plots/'
+    PRFX = './../plots/'
     NX = nairp//2
     NY = 2
     SX = 10
