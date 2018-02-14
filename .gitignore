@@ -1,9 +1,11 @@
 # User defined
 *.DS_Store
-notes.md
+####
+Wavelet_analysis.ipynb
+####
 scrap/*
 pictures/*
-publications/LL*
+publications/
 DataByEndAirport/*
 !DataByEndAirport/Sample_data
 
