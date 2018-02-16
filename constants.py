@@ -4,6 +4,9 @@ import pandas as pd
 pathtohere = os.path.abspath(__file__)
 HERE = os.path.dirname(pathtohere)
 
+INTERVAL = 10  # in minutes
+# binning parameter for the arrival series
+
 PREFIX = HERE + '/DataByEndAirport/'
 POSTFIX = '.csv'
 
